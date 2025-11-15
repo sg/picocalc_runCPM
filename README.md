@@ -1,4 +1,5 @@
 # picocalc-runCPM
+![runcpm_picocalc](https://github.com/user-attachments/assets/2458fa54-2655-4d5b-84d9-264f62ececc6)
 
 This is a port of runCPM on the Picocalc using picocalc-text-framwork
 This is a RP2040 only version, not a pico2. I probably will come up with a pico2 version at a later date.
@@ -20,6 +21,7 @@ Thank you to these guys for the great packages.
 <br>
 To test TP3, enter these commands :
 <br>
+
 ```
 E:
 USER 3
