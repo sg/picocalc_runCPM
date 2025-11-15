@@ -1,6 +1,10 @@
 MIT License
 
-Copyright (c) 2025 theflynn49
+runCPM                  Copyright (c) 2017 Mockba the Borg  (https://github.com/MockbaTheBorg/RunCPM)
+picocalc-text-framework Copyright (c) 2025 Blair Leduc  (https://github.com/BlairLeduc/picocalc-text-starter)
+abstraction_picocalc largely inspired by abstraction_arduino Copyright (c) 2025 Guido Lehwalder
+    (https://github.com/guidol70/RunCPM_RPi_Pico)
+glue logic by theFlynn49 2025
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
