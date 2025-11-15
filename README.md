@@ -8,7 +8,7 @@ This is a RP2040 only version, not a pico2. I probably will come up with a pico2
 
 - runCPM Copyright (c) 2017 Mockba the Borg  (https://github.com/MockbaTheBorg/RunCPM)
 - picocalc-text-framework Copyright (c) 2025 Blair Leduc  (https://github.com/BlairLeduc/picocalc-text-starter)
-- abstraction_picocalc largely inspired by abstraction_arduino Copyright (c) 2025 Guido Lehwalder (https://github.com/guidol70/RunCPM_RPi_Pico)
+- Largely inspired by the work of Guido Lehwalder (https://github.com/guidol70/RunCPM_RPi_Pico)
 <br>
 Thank you to these guys for the great packages.
 
