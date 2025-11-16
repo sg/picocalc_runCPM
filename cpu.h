@@ -22,6 +22,8 @@ int32 Status = STATUS_RUNNING; /* Status of the CPU 0=running 1=end request 2=ba
 int32 Debug = 0;
 int32 Step = -1;
 
+extern volatile bool user_interrupt ;
+
 #ifdef iDEBUG
 FILE* iLogFile;
 char iLogBuffer[256];
@@ -1267,8 +1269,9 @@ static inline void Z80run(void) {
 	uint32 op = 0;
 	uint32 adr;
 
+	user_interrupt = false ;
 	/* main instruction fetch/decode loop */
-	while (!Status) {	/* loop until Status != 0 */
+	while ((!Status) && (!user_interrupt)) {	/* loop until Status != 0 */
 
 #ifdef DEBUG
 		if (z80_check_breakpoints_on_exec(PC)) {

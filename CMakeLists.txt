@@ -24,6 +24,7 @@ if (EXISTS ${picoVscode})
 endif()
 # ====================================================================================
 set(PICO_BOARD pico CACHE STRING "Board type")
+set(PICO_USE_FASTEST_SUPPORTED_CLOCK 1)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
 include(pico_sdk_import.cmake)
@@ -84,7 +85,7 @@ pico_generate_pio_header(picocalc-runcpm ${CMAKE_CURRENT_LIST_DIR}/drivers/audio
 
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(picocalc-runcpm 0)
-pico_enable_stdio_usb(picocalc-runcpm 1)
+pico_enable_stdio_usb(picocalc-runcpm 0)
 
 # Turn on all warnings
 target_compile_options(picocalc-runcpm PRIVATE -Wall -Werror -Wno-unused-variable )

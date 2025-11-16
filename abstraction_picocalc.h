@@ -23,10 +23,12 @@
 #include "drivers/sdcard.h"
 #include "drivers/fat32.h"
 #include "drivers/onboard_led.h"
-#include "drivers/serial.h"
+#include "drivers/display.h"
+#include "drivers/audio.h"
 
 bool power_off_requested = false;
 volatile bool user_interrupt = false ;
+volatile bool user_freeze = false ;
 
 fat32_file_t fat_dir;
 char fat_dir_fullpath[6] ;
@@ -316,7 +318,8 @@ uint8 _sys_writerand(uint8 *filename, long fpos) {
 }
 
 uint8 _Truncate(char *fn, uint8 rc) {
-	printf("Error: truncate not implemented\n") ;
+// CP/M doesn't support truncate
+	printf("Err: no truncate\n") ;
 /*
     uint8 result = 0x00;
     uint8 fullpath[128] = FILEBASE;
@@ -324,7 +327,7 @@ uint8 _Truncate(char *fn, uint8 rc) {
     if (truncate((char *)fullpath, rc * 128))
         result = 0xff;
     return (result);
-    */
+*/    
     return 1 ;
 }
 
@@ -529,12 +532,19 @@ uint8 _findfirstallusers(uint8 isdir) {
 
 /* Hardware abstraction functions */
 /*===============================================================================*/
+
+void beep(void) {
+  audio_play_sound_blocking(440, 440, 100) ;
+}
+
 void _HardwareInit(void) {
     int led_init_result = led_init();
 
     stdio_init_all();
     picocalc_init();
     lcd_set_font(&font_5x10);
+    audio_init() ;
+    display_set_bell_callback(beep) ;
 #ifdef UART_DEBUG
     serial_init(UART_BAUDRATE, UART_DATABITS, UART_STOPBITS, UART_PARITY) ;
 #endif
@@ -559,11 +569,11 @@ void _console_reset(void) {
 /* ==============================================================================*/
 
 int _kbhit(void) {
-    return keyboard_key_available() ;
+    return keyboard_key_available() || user_interrupt ;
 }
 
 uint8 _getch(void) {
-    return getchar();
+    return getchar() ;
 }
 
 
@@ -571,6 +581,7 @@ void _putch(uint8 ch) {
     static int nbout = 0 ; 
     char buf[10] ;
 
+    while(user_freeze) ; // wait for Ctrl-Q
     putchar(ch);
 #if UART_DEBUG
     if ((ch>0x20) && (ch<0x80)) 

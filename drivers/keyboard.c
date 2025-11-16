@@ -18,9 +18,12 @@
 #include "pico/stdlib.h"
 
 #include "keyboard.h"
+#include "display.h"
 #include "southbridge.h"
 
 extern volatile bool user_interrupt;
+extern volatile bool user_freeze;
+
 keyboard_key_available_callback_t keyboard_key_available_callback = NULL;
 
 static bool keyboard_initialised = false; // flag to indicate if the keyboard is initialised
@@ -61,13 +64,13 @@ void keyboard_poll()
             {
                 key_shift = true;
             }
+            else if (key_code == KEY_BREAK)
+            {
+               	user_interrupt = true ; // set user interrupt flag
+            }
             else if (key_code == KEY_MOD_ALT)
             {
                 key_alt = true;
-            }
-            else if (key_code == KEY_BREAK)
-            {
-                user_interrupt = true; // set user interrupt flag
             }
             else if (key_code == KEY_CAPS_LOCK)
             {
@@ -94,17 +97,21 @@ void keyboard_poll()
                     ch = KEY_RETURN; // convert LF to CR
                 } else if (ch == KEY_ESC)
 		{
-			ch = 0x1b ;
+			ch = CHR_ESC ;
 		}
-                uint16_t next_head = (rx_head + 1) & (KBD_BUFFER_SIZE - 1);
-                rx_buffer[rx_head] = ch;
-                rx_head = next_head;
+		if (ch == 0x13) user_freeze = true ; else
+		if (ch == 0x11) user_freeze = false ; else
+		{
+                	uint16_t next_head = (rx_head + 1) & (KBD_BUFFER_SIZE - 1);
+                	rx_buffer[rx_head] = ch;
+                	rx_head = next_head;
 
                 // Notify that characters are available
-                if (keyboard_key_available_callback)
-                {
-                    keyboard_key_available_callback();
-                }
+                	if (keyboard_key_available_callback)
+                	{
+                 	   	keyboard_key_available_callback();
+                	}
+		}
             }
         }
         else if (key_state == KEY_STATE_RELEASED)
@@ -139,7 +146,7 @@ static bool on_keyboard_timer(repeating_timer_t *rt)
 
 bool keyboard_key_available()
 {
-    return rx_head != rx_tail;
+    return rx_head != rx_tail ;
 }
 
 char keyboard_get_key()
@@ -147,6 +154,7 @@ char keyboard_get_key()
     while (!keyboard_key_available())
     {
         tight_loop_contents();
+//	if (user_interrupt) return 0xd ;
     }
 
     char ch = rx_buffer[rx_tail];

@@ -30,6 +30,15 @@ TURBO
 <br>
 WS wants to work, but maybe the screen is too small ?
 
+# Updates
+
+## v1.1
+
+- Pico speed faster (to 200Mhz)
+- Supports BRK to some extent (returns to CP/M)
+- Supports XON/XOFF (to stop long DIRs and such)
+- Added BELL
+
 ## Bugs
 
 Probably a lot, all to blame on me. Use this only for fun, no guarantee for anything. You've been warned.
