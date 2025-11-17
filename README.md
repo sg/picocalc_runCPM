@@ -28,9 +28,13 @@ USER 3
 TURBO
 ```
 <br>
-WS wants to work, but maybe the screen is too small ?
+WS does work, but maybe the screen is a bit too small.
 
 # Updates
+
+## v1.1a
+
+I made a boo-boo using Ctrl-S and Ctrl-A for XON/XOFF, since these keys are used by all editors. So XOFF is now KEY_F5 and XON is KEY_F4
 
 ## v1.1
 

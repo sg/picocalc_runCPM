@@ -76,6 +76,8 @@ void keyboard_poll()
             {
                 // do nothing, processed in the south bridge
             }
+	    else if (key_code == 0x85) user_freeze = true ; 
+	    else if (key_code == 0x84) user_freeze = false ;
             else
             {
                 // If a key is released, we return the key code
@@ -95,22 +97,19 @@ void keyboard_poll()
                 else if (ch == KEY_ENTER) // enter key is returned as LF
                 {
                     ch = KEY_RETURN; // convert LF to CR
-                } else if (ch == KEY_ESC)
+                } 
+		else if (ch == KEY_ESC)
 		{
 			ch = CHR_ESC ;
 		}
-		if (ch == 0x13) user_freeze = true ; else
-		if (ch == 0x11) user_freeze = false ; else
-		{
-                	uint16_t next_head = (rx_head + 1) & (KBD_BUFFER_SIZE - 1);
-                	rx_buffer[rx_head] = ch;
-                	rx_head = next_head;
+               	uint16_t next_head = (rx_head + 1) & (KBD_BUFFER_SIZE - 1);
+               	rx_buffer[rx_head] = ch;
+               	rx_head = next_head;
 
-                // Notify that characters are available
-                	if (keyboard_key_available_callback)
-                	{
-                 	   	keyboard_key_available_callback();
-                	}
+               // Notify that characters are available
+               	if (keyboard_key_available_callback)
+               	{
+               	   	keyboard_key_available_callback();
 		}
             }
         }
