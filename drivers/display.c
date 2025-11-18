@@ -686,12 +686,17 @@ void display_emit(char ch)
                 }
                 else if (parameters[0] == 4264)
                 {
-                    // set 64 column mode
+                    // set 40 column mode
                     lcd_set_font(&font_8x10);
                 }
                 break;
             case 'm':
-                // Ignore for now
+                // hijack this case for 80 cols selection
+                if (parameters[0] == 4264)
+                {
+                    // set 80 column mode
+                    lcd_set_font(&font_4x10);
+                }
                 break;
             default:
                 lcd_putc(column++, row, 0x01); // print a error character
