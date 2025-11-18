@@ -32,6 +32,14 @@ WS does work, now that we have 80 columns.
 
 # Updates
 
+## v1.2a
+
+Added the SETFONT utility in support_files. Source is in SETFONT.PAS
+
+- SETFONT 4 will the the 4x10 font
+- SETFONT 5 will the the 5x10 font
+- SETFONT 8 will the the 8x10 font
+
 ## v1.2
 
 Thanx to **rugosi** we have now 80 columns.
