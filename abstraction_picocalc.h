@@ -564,7 +564,7 @@ void _HardwareOut(const uint32 Port, const uint32 Value) {
 uint32 _HardwareIn(const uint32 Port) {
     switch(Port)
     {
-	case 201 : return (uint32) sb_read_battery() ;
+	case 201 : return (uint32) (sb_read_battery()*100)/255 ;
 	case 202 : return (uint32) sb_read_lcd_backlight() ; 
 	case 203 : return (uint32) sb_read_keyboard_backlight() ;
 	default : return 0L ;

@@ -90,7 +90,7 @@ int main(void) {
     _puthex8(BANKS);
     _puts(" banks\r\n");
     #endif
-    printf("Battery Level: %d%%\r\n", sb_read_battery()) ;
+    printf("Battery Level: %d%%\r\n", (sb_read_battery()*100)/255) ;
 
     #ifdef ABDOS
     _PatchBIOS();
