@@ -51,6 +51,7 @@ int lst_open = FALSE;
     #endif
 
 int main(void) {
+    uint8 blevel ;
 
     #ifdef DEBUGLOG
     _sys_deletefile((uint8 *)LogName);
@@ -90,7 +91,10 @@ int main(void) {
     _puthex8(BANKS);
     _puts(" banks\r\n");
     #endif
-    printf("Battery Level: %d%%\r\n", (sb_read_battery()*100)/255) ;
+    blevel = sb_read_battery() ;
+    printf("Battery Level: %d%%", blevel&0x7f) ;
+    if (blevel & 0x80) _puts(" (charging)") ;
+    _puts("\r\n") ;
 
     #ifdef ABDOS
     _PatchBIOS();

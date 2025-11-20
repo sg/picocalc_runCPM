@@ -8,8 +8,9 @@
         include display.lib
 ;;;;;;;;;;
 ;
-m_pct  db      '%'
+m_pct  db      '%',0
 m_crlf	db	cr,lf,0
+m_chrg  db	' (charging)',0
 m_bl    db      'The battery level is ',0
 m_lb    db      'The lcd backlight is ',0
 m_kb    db      'The keyboard backlight is ',0
@@ -18,21 +19,31 @@ m_kb    db      'The keyboard backlight is ',0
 start
 	ld	hl,m_bl
 	call	dspstr
- 	in	a,(1)
+ 	in	a,(201)
+	push	af
+	and	07fh
 	call	dspau
 	ld	hl,m_pct
+	call	dspstr
+	pop	af
+	and	080h
+	jr	z,dnext
+	ld	hl,m_chrg
+	call	dspstr
+dnext
+	ld	hl,m_crlf
 	call	dspstr
 ;
 	ld	hl,m_lb
 	call	dspstr
- 	in	a,(2)
+ 	in	a,(202)
 	call	dspau
 	ld	hl,m_crlf
 	call	dspstr
 ;
 	ld	hl,m_kb
 	call	dspstr
- 	in	a,(3)
+ 	in	a,(203)
 	call	dspau
 	ld	hl,m_crlf
 	jp	dspstr
