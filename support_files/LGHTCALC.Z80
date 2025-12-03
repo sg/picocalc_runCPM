@@ -74,13 +74,13 @@ start
 	ld 	hl,fcbtwo+1
 	call	atoi
 	ld	a,e
-	out	(2),A
+	out	(202),A
 	ret
 kbd
 	ld 	hl,fcbtwo+1
 	call	atoi
 	ld	a,e
-	out	(3),A
+	out	(203),A
 	ret
 	
 err	ld	hl,m_err

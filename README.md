@@ -38,8 +38,8 @@ Added the BATTERY.COM and LGHTCALC.COM utilities in support_files. Sources are i
 At boot, the battery level is also displayed.
 
 - BATTERY will show the battery level, the LCD backlight level and the keyboard backlight level.
-- LGHTCALC K <nn> : nn from 0 to 255, will set the keyboard backlight level
-- LGHTCALC L <nn> : nn from 0 to 255, will set the LCD backlight level
+- LGHTCALC K \<nn\> : nn from 0 to 255, will set the keyboard backlight level
+- LGHTCALC L \<nn\> : nn from 0 to 255, will set the LCD backlight level
 
 Z80 I/O ports are defined like this :
 
