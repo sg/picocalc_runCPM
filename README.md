@@ -1,7 +1,7 @@
 # picocalc-runCPM
 ![runcpm_picocalc](https://github.com/user-attachments/assets/2458fa54-2655-4d5b-84d9-264f62ececc6)
 
-This is a port of runCPM on the Picocalc using picocalc-text-framwork
+This is a port of runCPM on the Picocalc using picocalc-text-framwork<br>
 This is a RP2350W version. RP2350, RP2040 and RP2040W should work too
 
 # Credits
@@ -30,6 +30,7 @@ TURBO
 <br>
 To test WordStar, enter these commands :
 <br>
+
 ```
 F:
 USER 3
