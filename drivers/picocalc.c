@@ -8,6 +8,8 @@
 #include "fat32.h"
 #include "southbridge.h"
 
+extern unsigned char _getch(void) ;
+
 // Callback for when characters become available
 static void (*chars_available_callback)(void *) = NULL;
 static void *chars_available_param = NULL;
@@ -30,7 +32,8 @@ static int picocalc_in_chars(char *buf, int length)
     int n = 0;
     while (n < length)
     {
-        int c = keyboard_get_key();
+        // int c = keyboard_get_key();
+        int c = _getch();
         if (c == -1)
             break; // No key pressed
         buf[n++] = (char)c;

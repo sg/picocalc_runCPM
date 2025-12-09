@@ -2,7 +2,7 @@
 ![runcpm_picocalc](https://github.com/user-attachments/assets/2458fa54-2655-4d5b-84d9-264f62ececc6)
 
 This is a port of runCPM on the Picocalc using picocalc-text-framwork
-This is a RP2040 only version, but **Randorandus** reports that it works on a RP2350W.
+This is a RP2350W version. RP2350, RP2040 and RP2040W should work too
 
 # Credits
 
@@ -28,9 +28,22 @@ USER 3
 TURBO
 ```
 <br>
-WS does work, now that we have 80 columns.
+To test WordStar, enter these commands :
+<br>
+```
+F:
+USER 3
+WS
+```
+<br>
 
 # Updates
+
+## v1.4
+
+The USB Serial port is now activated. Connect the mini-USB of the pico board to a computer and run a VT100 emulator to get a remote screen/keyboard to your picocalc.<br>
+With my version of Linux, I use minicom like so : "minicom -D /dev/ttyACM0"<br>
+Parameters are : 115200 8N1<br>
 
 ## v1.3
 

@@ -26,9 +26,11 @@
 #include "drivers/display.h"
 #include "drivers/audio.h"
 #include "drivers/southbridge.h"
+#include "drivers/serial.h"
 
 bool power_off_requested = false;
 volatile bool user_interrupt = false ;
+volatile int user_keyavail = 0 ;
 volatile bool user_freeze = false ;
 
 fat32_file_t fat_dir;
@@ -538,15 +540,25 @@ void beep(void) {
   audio_play_sound_blocking(440, 440, 100) ;
 }
 
+void k_callback(void *ptr){
+
+    // int *i = (int*) ptr;  // cast void pointer back to int pointer
+    // read the character which caused to callback (and in the future read the whole string)
+    // *i = getchar_timeout_us(100); // length of timeout does not affect results
+    user_keyavail++ ;
+}
+
 void _HardwareInit(void) {
     int led_init_result = led_init();
 
     stdio_init_all();
     picocalc_init();
+    stdio_usb_init() ;
     lcd_set_font(&font_4x10);
     audio_init() ;
     display_set_bell_callback(beep) ;
-#ifdef UART_DEBUG
+     stdio_set_chars_available_callback(k_callback, (void*)  NULL) ;
+#if UART_DEBUG
     serial_init(UART_BAUDRATE, UART_DATABITS, UART_STOPBITS, UART_PARITY) ;
 #endif
 } 
@@ -583,13 +595,27 @@ void _console_reset(void) {
 /* ==============================================================================*/
 
 int _kbhit(void) {
-    return keyboard_key_available() || user_interrupt ;
+   if (keyboard_key_available() || 
+	    (user_keyavail>0) ||
+	    // serial_intput_available() ||
+	    user_interrupt) return true ;
+   return false ;
 }
 
 uint8 _getch(void) {
-    return getchar() ;
+  int ch ;
+  while(1) {
+    if (user_keyavail>0)  {
+	user_keyavail-- ;
+    	return getchar_timeout_us(1000) ;
+    }
+    if (keyboard_key_available()) {
+	 return keyboard_get_key() ;
+    } 
+    sleep_ms(10) ;
+    //return getchar() ;
+  }
 }
-
 
 void _putch(uint8 ch) {
     static int nbout = 0 ; 
