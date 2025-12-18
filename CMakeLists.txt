@@ -23,7 +23,7 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2_w CACHE STRING "Board type")
+set(PICO_BOARD pico CACHE STRING "Board type")
 set(PICO_USE_FASTEST_SUPPORTED_CLOCK 1)
 
 # Pull in Raspberry Pi Pico SDK (must be before project)
@@ -44,7 +44,11 @@ add_executable(picocalc-runcpm
 	ccp.h  
 	console.h  
 	cpm.h  
-	cpu.h  
+	cpu1.h  
+	cpu2.h  
+	cpu3.h  
+	cpu3.h  
+	cpu_mhz.h  
 	disk.h  
 	globals.h  
 	host.h  
@@ -84,9 +88,16 @@ pico_set_program_version(picocalc-runcpm "0.1")
 # Generate PIO header
 pico_generate_pio_header(picocalc-runcpm ${CMAKE_CURRENT_LIST_DIR}/drivers/audio.pio)
 
+# set or reset the STDIO_USB function (serial tty over USB)
+set(ENABLE_STDIO_USB 1)
+
 # Modify the below lines to enable/disable output over UART/USB
 pico_enable_stdio_uart(picocalc-runcpm 0)
-pico_enable_stdio_usb(picocalc-runcpm 1)
+pico_enable_stdio_usb(picocalc-runcpm ${ENABLE_STDIO_USB})  
+
+target_compile_definitions(picocalc-runcpm PRIVATE
+	   PICO_STDIO_USB_ENABLED=${ENABLE_STDIO_USB} 
+   	   PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK=1 )
 
 # Turn on all warnings
 target_compile_options(picocalc-runcpm PRIVATE -Wall -Werror -Wno-unused-variable )
@@ -94,10 +105,6 @@ target_compile_options(picocalc-runcpm PRIVATE -Wall -Werror -Wno-unused-variabl
 # Add the standard library to the build
 target_link_libraries(picocalc-runcpm
         pico_stdlib)
-
-target_compile_definitions(picocalc-runcpm PRIVATE
-#           PICO_STDIO_USB_CONNECT_WAIT_TIMEOUT_MS=-1
-   	   PICO_STDIO_USB_SUPPORT_CHARS_AVAILABLE_CALLBACK=1 )
 
 # Add the standard include files to the build
 target_include_directories(picocalc-runcpm PRIVATE

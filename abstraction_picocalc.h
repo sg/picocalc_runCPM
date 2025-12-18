@@ -14,7 +14,7 @@
 // #include <termios.h>
 #include <time.h>
 #include <unistd.h>
-#define millis() clock() / 1000
+#define millis() (to_ms_since_boot(get_absolute_time()))
 
 #include "drivers/picocalc.h"
 #include "drivers/lcd.h"
@@ -553,11 +553,13 @@ void _HardwareInit(void) {
 
     stdio_init_all();
     picocalc_init();
-    stdio_usb_init() ;
     lcd_set_font(&font_4x10);
     audio_init() ;
     display_set_bell_callback(beep) ;
-     stdio_set_chars_available_callback(k_callback, (void*)  NULL) ;
+#if PICO_STDIO_USB_ENABLED!=0
+    stdio_usb_init() ;
+    stdio_set_chars_available_callback(k_callback, (void*)  NULL) ;
+#endif
 #if UART_DEBUG
     serial_init(UART_BAUDRATE, UART_DATABITS, UART_STOPBITS, UART_PARITY) ;
 #endif

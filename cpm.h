@@ -124,7 +124,8 @@ enum eBDOSFunc {
     F_HOSTOS = 250,
     F_VERSION = 251,
     F_CCPVERSION = 252,
-    F_CCPADDR = 253
+    F_CCPADDR = 253,
+    F_SETCPUSPEED = 254
 };
 
 /* see main.c for definition */
@@ -134,6 +135,11 @@ enum eBDOSFunc {
 #define RET 0xc9
 #define INa 0xdb  // Triggers a BIOS call
 #define OUTa 0xd3 // Triggers a BDOS call
+// Interruption handling
+#define RST_08 0xcf  // RST 08h - BIOS calls
+#define RST_10 0xd7  // RST 10h - BDOS calls  
+#define RST_18 0xdf  // RST 18h - Hardware calls
+#define NOP 0x00     // No operation
 
 /* set up full PUN and LST filenames to be on drive A: user 0 */
 #ifdef USE_PUN
@@ -160,9 +166,15 @@ void _PatchBIOS(void) {
 
     // Patches in the BIOS page content
     for (i = 0; i < 99; i = i + 3) {
+#ifdef INT_HANDOFF
+        _RamWrite(BIOSpage + i, RST_08);
+        _RamWrite(BIOSpage + i + 1, RET);
+        _RamWrite(BIOSpage + i + 2, NOP);
+#else
         _RamWrite(BIOSpage + i, OUTa);
         _RamWrite(BIOSpage + i + 1, 0xFF);
         _RamWrite(BIOSpage + i + 2, RET);
+#endif
     }
 } //_PatchBIOS
 
@@ -204,29 +216,35 @@ void _PatchCPM(void) {
     _RamWrite16(BDOSjmppage + 7, BDOSpage);
 
     // Patches in the BDOS page content
+#ifdef INT_HANDOFF
+    _RamWrite(BDOSpage, RST_10);
+    _RamWrite(BDOSpage + 1, RET);
+    _RamWrite(BDOSpage + 2, NOP);
+#else
     _RamWrite(BDOSpage, INa);
     _RamWrite(BDOSpage + 1, 0xFF);
     _RamWrite(BDOSpage + 2, RET);
+#endif
 
     _PatchBIOS();
 #endif
 
     // **********  Patch CP/M (fake) Disk Parameter Block after the BDOS call entry  **********
     i = DPBaddr;
-    _RamWrite(i++, 64); // spt - Sectors Per Track
-    _RamWrite(i++, 0);
-    _RamWrite(i++, 5);    // bsh - Data allocation "Block Shift Factor"
-    _RamWrite(i++, 0x1F); // blm - Data allocation Block Mask
-    _RamWrite(i++, 1);    // exm - Extent Mask
-    _RamWrite(i++, 0xFF); // dsm - Total storage capacity of the disk drive
+    _RamWrite(i++, 0x00); // DEFW spt - Sectors Per Track (256)
+    _RamWrite(i++, 0x01);
+    _RamWrite(i++, 0x05); // DEFB bsh - Data allocation "Block Shift Factor" (for 4096 block size)
+    _RamWrite(i++, 0x1F); // DEFB blm - Data allocation Block Mask (31 for 4096 block size)
+    _RamWrite(i++, 0x01); // DEFB exm - Data allocation Extent Mask (1 = total blocks > 256)
+    _RamWrite(i++, 0xF7); // DEFW dsm - Logical disk size in blocks - 1 (2039)
     _RamWrite(i++, 0x07);
-    _RamWrite(i++, 255); // drm - Number of the last directory entry
-    _RamWrite(i++, 3);
-    _RamWrite(i++, 0xFF); // al0
-    _RamWrite(i++, 0x00); // al1
-    _RamWrite(i++, 0);    // cks - Check area Size
-    _RamWrite(i++, 0);
-    _RamWrite(i++, 0x02); // off - Number of system reserved tracks at the beginning of the ( logical ) disk
+    _RamWrite(i++, 0xFF); // DEFW drm - Maximum directory entries - 1 (1023)
+    _RamWrite(i++, 0x03);
+    _RamWrite(i++, 0xFF); // DEFB al0 - Reserved directory blocks
+    _RamWrite(i++, 0x00); // DEFB al1 - Reserved directory blocks
+    _RamWrite(i++, 0x00); // DEFW cks - Check area Size (0 for fixed disks)
+    _RamWrite(i++, 0x00);
+    _RamWrite(i++, 0x01); // DEFW off - Number of system reserved tracks at the beginning of the ( logical ) disk
     _RamWrite(i++, 0x00);
     blockShift = _RamRead(DPBaddr + 2);
     blockMask = _RamRead(DPBaddr + 3);
@@ -1766,6 +1784,15 @@ void _Bdos(void) {
      */
     case F_CCPADDR: {
         HL = CCPaddr;
+        break;
+    }
+
+    /*
+       C = 254 (FEh) : Set CPU speed
+       DE = Number of instructions to trigger the delay
+    */
+    case F_SETCPUSPEED: {
+        cpuDelayInstructions = DE;
         break;
     }
 

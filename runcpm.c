@@ -11,7 +11,9 @@
 */
 
 // Only build this code if not on Arduino
-#ifndef ARDUINO
+// force ARDUINO for PICOCALC, which is kind of a posix env.
+#define ARDUINO 
+#ifndef ARDUINOXX 
 
     /* globals.h must be the first file included - it defines the bare essentials */
     #include "globals.h"
@@ -42,7 +44,7 @@ int lst_open = FALSE;
 
     #include "ram.h"     // ram.h - Implements the RAM
     #include "console.h" // console.h - Defines all the console abstraction functions
-    #include "cpu.h"     // cpu.h - Implements the emulated CPU
+    #include CPU         // cpu.h - Implements the emulated CPU
     #include "disk.h"    // disk.h - Defines all the disk access abstraction functions
     #include "host.h"    // host.h - Custom host-specific BDOS call
     #include "cpm.h"     // cpm.h - Defines the CPM structures and calls
@@ -67,7 +69,7 @@ int main(void) {
     _clrscr();
      _puts("CP/M Emulator v" VERSION "\e[0m by \e[97mMarcelo  Dantas\e[0m\r\n");
      _puts("Picocalc-text-framework v0.14 by \e[97mBlair Leduc\e[0m\r\n");
-     _puts("Port v1.4 by \e[97mtheFlynn49\e[0m inspired by \e[97mGuido Lehwalder\e[0m's work\r\n");
+     _puts("Port v1.5 by \e[97mtheFlynn49\e[0m inspired by \e[97mGuido Lehwalder\e[0m's work\r\n");
 
   //  _puts("  CP/M Emulator v" VERSION " by Marcelo Dantas\r\n");
     _puts("      Built " __DATE__ " - " __TIME__ "\r\n");
@@ -91,6 +93,16 @@ int main(void) {
     _puthex8(BANKS);
     _puts(" banks\r\n");
     #endif
+    _puts("CPU is ");
+    _puts(CPU_IS);
+    _puts("\r\n");
+    Z80estimateClock();
+#ifdef INT_HANDOFF
+    _puts("BIOS/BDOS using interrupt handoff method\r\n");
+#else
+    _puts("BIOS/BDOS using legacy IN/OUT call method\r\n");
+#endif
+
     blevel = sb_read_battery() ;
     printf("Battery Level: %d%%", blevel&0x7f) ;
     if (blevel & 0x80) _puts(" (charging)") ;
@@ -131,7 +143,7 @@ int main(void) {
         Z80reset();                              // Resets the Z80 CPU
         SET_LOW_REGISTER(BC, _RamRead(DSKByte)); // Sets C to the current drive/user
         PC = CCPaddr;                            // Sets CP/M application jump point
-        Z80run();                                // Starts simulation
+        Z80run(cpuDelayInstructions);            // Starts simulation
     #endif
         if (Status == 1) // This is set by a call to BIOS 0 - ends CP/M
     #ifdef DEBUG

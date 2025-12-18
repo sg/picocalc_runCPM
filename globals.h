@@ -6,6 +6,13 @@
     #include <ctype.h>
 #endif
 
+/* Definition of which CPU to use: cpu.h, cpu2.h, cpu3.h, cpu4.h */
+#define CPU "cpu1.h"
+
+/* CPU speed for throttling (0 = disabled/fastest, 500 = slow, smaller number = slower) */
+#define CPU_SPEED 0 // Defines the number of instructions to execute before checking the time
+                    // and possibly delaying execution to throttle CPU speed
+
 /* Definition for enabling incrementing the R register for each M1 cycle */
 #define DO_INCR // Loses a bit of performance in favor or realistic R register emulation
 
@@ -28,8 +35,8 @@
 #define LogName "RunCPM.log"
 
 /* RunCPM version for the greeting header */
-#define VERSION "6.8"
-#define VersionBCD 0x68
+#define VERSION "6.9"
+#define VersionBCD 0x69
 
 /* Definition of which BDOS to use (not for Internal CCP, set to 60K CCPs by default) */
 // #define ABDOS				// Based on work by Pavel Zampach (https://www.chstercius.cz/runcpm/)
@@ -46,8 +53,8 @@
 /* Definition of the CCP memory information */
 //
 #ifdef CCP_INTERNAL
-    #define CCPname "CCP-INTERNAL v3.2" // Will use the CCP from ccp.h
-    #define VersionCCP 0x32             // 0x10 and above reserved for Internal CCP
+    #define CCPname "CCP-INTERNAL v3.3" // Will use the CCP from ccp.h
+    #define VersionCCP 0x33             // 0x10 and above reserved for Internal CCP
     #define BatchFCB (tmpFCB + 48)
     #define CCPaddr BDOSjmppage // Internal CCP has size 0
 #endif
@@ -146,9 +153,11 @@
 typedef signed char int8;
 typedef signed short int16;
 typedef signed int int32;
+typedef signed long long int64;
 typedef unsigned char uint8;
 typedef unsigned short uint16;
 typedef unsigned int uint32;
+typedef unsigned long long uint64;
 
 #define LOW_DIGIT(x) ((x) & 0xf)
 #define HIGH_DIGIT(x) (((x) >> 4) & 0xf)
@@ -206,6 +215,10 @@ static uint8 RAM[MEMSIZE];
         RAM[(a) + 1] = (v) >> 8
 #endif
 
+// If this is defined, the emulator will use interrupt-based BIOS/BDOS calls instead of
+// the legacy IN/OUT method for handing control to the emulated BIOS/BDOS routines
+#define INT_HANDOFF
+
 // Size of the allocated pages (Minimum size = 1 page = 256 bytes)
 
 // BIOS Pages (512 bytes from the top of memory)
@@ -254,6 +267,7 @@ static uint16 numAllocBlocks;     // # of allocation blocks on disk
 static uint8 extentsPerDirEntry;  // # of logical (16K) extents in a directory entry
 #define logicalExtentBytes (16 * 1024UL)
 static uint16 physicalExtentBytes; // # bytes described by 1 directory entry
+static uint16 cpuDelayInstructions = CPU_SPEED;
 
 #define tohex(x) ((x) < 10 ? (x) + 48 : (x) + 87)
 
